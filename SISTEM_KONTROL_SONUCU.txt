@@ -1,0 +1,9 @@
+KAAN TAKSIMETRE SISTEM KONTROLU
+Tarih: Per 23.07.2026 11:54:46,46
+Proje klasoru: C:\Users\hp\Desktop\Taksimetre_Temiz\Kaan-Taksimetre-v3.6-Hazir-Derlenmis\Kaan-Taksimetre-v3.6\
+
+OK: Proje klasoru dogru.
+go version go1.26.3 windows/amd64
+v24.14.0
+11.9.0
+OK: Port 3000 bos gorunuyor.

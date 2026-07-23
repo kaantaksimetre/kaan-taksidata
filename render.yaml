@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: taksimetre-yonetim-sistemi
+    runtime: docker
+    plan: starter
+    region: frankfurt
+
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+
+    # GitHub'a kod gönderildiğinde otomatik yayın yapılmasın.
+    autoDeployTrigger: off
+
+    # SQLite kalıcı disk kullandığı için tek sunucu örneği.
+    numInstances: 1
+
+    envVars:
+      - key: TAKSIMETRE_ENV
+        value: production
+
+      - key: TAKSIMETRE_DB_PATH
+        value: /var/data/taksimetre.db
+
+      - key: TAKSIMETRE_PUBLIC_DIR
+        value: /app/public
+
+      - key: TAKSIMETRE_MAX_BACKUPS
+        value: "15"
+
+      # Render ilk kurulumda bu iki değeri senden isteyecek.
+      - key: TAKSIMETRE_ADMIN_EMAIL
+        sync: false
+
+      - key: TAKSIMETRE_ADMIN_PASSWORD
+        sync: false
+
+      # Otomatik yedekleme için Render rastgele gizli anahtar üretir.
+      - key: TAKSIMETRE_BACKUP_TOKEN
+        generateValue: true
+
+      - key: TAKSIMETRE_SECURE_COOKIES
+        value: "true"
+
+      - key: TAKSIMETRE_TRUST_PROXY
+        value: "true"
+
+    disk:
+      name: taksimetre-data
+      mountPath: /var/data
+      sizeGB: 1

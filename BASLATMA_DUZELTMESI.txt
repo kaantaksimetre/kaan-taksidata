@@ -1,0 +1,3 @@
+1_BASLAT.bat artik PowerShell ile 'go run' calistirmiyor.
+Elle basarili olan 'go run .' komutunu dogrudan calistirir.
+ZIP'i tamamen cikartin ve 1_BASLAT.bat dosyasina cift tiklayin.

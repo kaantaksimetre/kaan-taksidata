@@ -1,0 +1,11 @@
+# Kişisel veriler ve yerel kimlik bilgileri
+*.db
+*.db-wal
+*.db-shm
+backups/
+auth_config.json
+
+# Derleme çıktıları
+public/
+*.exe
+*.log

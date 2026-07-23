@@ -1,0 +1,3 @@
+Sorun: pruneBackups fonksiyonu 50’den az yedek olduğunda files[50:] dilimlemesi yapıyordu.
+Sonuç: panic: slice bounds out of range [50:N]
+Düzeltme: len(files) <= keep olduğunda fonksiyon güvenli şekilde sonlanır.

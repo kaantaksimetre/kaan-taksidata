@@ -1,0 +1,5 @@
+Kaan Taksimetre v3.6
+Hazır derlenmiş belge güncellemesi:
+- Tarife ve Tamir-Ayar belgelerinde İşlem Yapan Kişi: Kaan MERTOĞLU.
+- Yetkili Belgesi Numarası: YB 07/179.
+- frontend/dist ve backend/public güncellendi; npm ile yeniden derleme gerekmez.

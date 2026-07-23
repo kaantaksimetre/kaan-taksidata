@@ -1,0 +1,8 @@
+Kaan Taksimetre v3.5
+
+Yapılan değişiklikler:
+1. Tamir Ayar ekranından Geçici Mühür alanı kaldırıldı.
+2. Kelebek Mühür Seri No alanı belgelerde aynı arayüz alanından kullanılır.
+3. Tamir Ayar ve Tarife belgelerinde unvan KAAN ELEKTRONİK - KAAN MERTOĞLU olarak değiştirildi.
+4. Her iki belgedeki İşlem Yapan Kişi bölümünden Kullanıcı ve İşlem Noktası kaldırıldı.
+5. İşlem noktası dahili kayıt ve belge geçmişinde korunur; yalnızca basılı belgede görünmez.

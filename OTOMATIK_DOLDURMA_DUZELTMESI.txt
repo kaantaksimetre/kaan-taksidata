@@ -1,0 +1,14 @@
+KAAN TAKSIMETRE v3.3 - OTOMATIK DOLDURMA DUZELTMESI
+
+Bu surumde tarayicinin musteri, plaka, arac, taksimetre ve tarife alanlarinda
+onceki girilen degerleri siyah oneri kutusu olarak gostermesi engellendi.
+
+Uygulama:
+1. Eski sunucuyu Ctrl+C ile kapatin.
+2. Yeni ZIP'i tamamen cikartin.
+3. Mevcut test verilerinizi korumak istiyorsaniz eski klasordeki
+   backend\taksimetre.db dosyasini yeni klasordeki backend klasorune kopyalayin.
+4. Yeni klasorde 1_BASLAT.bat dosyasini calistirin.
+5. Tarayicida Ctrl+F5 ile sert yenileme yapin.
+
+Not: Giris ekraninda e-posta/sifre otomatik doldurma bilincli olarak korunmustur.

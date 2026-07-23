@@ -1,0 +1,18 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Backend kişisel verileri ve yerel ayarlar
+backend/*.db
+backend/*.db-wal
+backend/*.db-shm
+backend/backups/
+backend/auth_config.json
+backend/public/
+backend/*.exe
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

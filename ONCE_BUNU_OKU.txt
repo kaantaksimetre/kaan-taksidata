@@ -1,0 +1,18 @@
+KAAN TAKSIMETRE - HIZLI BASLANGIC
+
+1) ZIP dosyasina sag tiklayin ve "Tumunu Ayikla" secin.
+   Projeyi ZIP penceresinin icinden calistirmayin.
+
+2) Ayiklanan klasorde once 0_SISTEM_KONTROLU.bat dosyasina cift tiklayin.
+
+3) Kontrolde Go bulunursa 1_BASLAT.bat dosyasina cift tiklayin.
+
+4) Site adresi:
+   http://127.0.0.1:3000
+
+5) Giris:
+   E-posta: admin@kaan.local
+   Sifre: KaanTaksi123!
+
+Komut penceresi kapanirsa klasordeki BASLATMA_LOGU.txt dosyasini acin.
+Bu surum normal test icin Node.js istemez. Frontend zaten derlenmis halde gelir.

@@ -1,0 +1,3 @@
+Bu ZIP tamamen çıkarıldıktan sonra 1_BASLAT.bat dosyasına çift tıklayın.
+Bu değişiklik için 3_URETIM_SURUMU_HAZIRLA.bat çalıştırmanız gerekmez.
+Tarayıcıda eski görünüm kalırsa Ctrl+F5 yapın.

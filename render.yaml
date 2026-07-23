@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: taksimetre-yonetim-sistemi
+    name: kaan-taksidata
     runtime: docker
     plan: starter
     region: frankfurt

@@ -5,6 +5,9 @@ import { formatStoredDateTime } from '../utils/dateTime';
 import { normalizePlateInput } from '../utils/formData';
 import { noAutocompleteProps } from '../utils/noAutocomplete';
 import { generateTamirAyarBelgesi, generateTarifeYuklemeBelgesi } from '../utils/pdfGenerator';
+import { generateBelgeExcel } from '../utils/excelGenerator';
+
+const EXCEL_MAX_KAYIT = 500;
 
 const emptyFiltre = () => ({
   tamirAyar: true,
@@ -30,6 +33,7 @@ export default function BelgeArama() {
   const [filtreLoading, setFiltreLoading] = useState(false);
   const [filtreYapildi, setFiltreYapildi] = useState(false);
   const [secili, setSecili] = useState(() => new Set());
+  const [excelBusy, setExcelBusy] = useState(false);
 
   const reprintBelge = async (belgeNo) => {
     setPrintBusy(true);
@@ -133,8 +137,50 @@ export default function BelgeArama() {
     setSecili(tumuSecili ? new Set() : new Set(filtreSonuclari.map((item) => item.id)));
   };
 
-  const handleExcelAktar = () => {
-    addToast('Excel’e aktarma özelliği bir sonraki adımda eklenecek', 'info');
+  const handleExcelAktar = async () => {
+    if (secili.size === 0) return;
+    if (secili.size > EXCEL_MAX_KAYIT) {
+      addToast(`Tek seferde en fazla ${EXCEL_MAX_KAYIT} kayıt aktarabilirsiniz. Lütfen seçiminizi daraltın.`, 'error');
+      return;
+    }
+    const seciliKayitlar = filtreSonuclari.filter((item) => secili.has(item.id));
+    setExcelBusy(true);
+    try {
+      // Taksimetre marka/model/seri/kelebek mühür bilgisi filtre listesinde yok;
+      // her belgenin o anki (snapshot) bilgisini almak için tek tek çekiyoruz.
+      const detaylar = await Promise.all(seciliKayitlar.map(async (kayit) => {
+        const response = await apiRequest('GET', `/islem/belge/${encodeURIComponent(kayit.belge_no)}`);
+        const snapshot = response.snapshot || { ...response.musteri, ...response.taksimetre, ...response.islem };
+        return {
+          plaka: kayit.plaka,
+          islem_turu: kayit.islem_turu,
+          islem_tarihi: kayit.islem_tarihi,
+          taksimetre_marka: snapshot.taksimetre_marka,
+          taksimetre_model: snapshot.taksimetre_model,
+          seri_no: snapshot.seri_no,
+          kelebek_muhur_seri_no: snapshot.kelebek_muhur_seri_no,
+        };
+      }));
+      detaylar.sort((a, b) => (a.islem_tarihi < b.islem_tarihi ? -1 : a.islem_tarihi > b.islem_tarihi ? 1 : 0));
+
+      const blob = await generateBelgeExcel(detaylar);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const dosyaAdi = filtre.baslangic && filtre.bitis
+        ? `tarife-bildirim-${filtre.baslangic}_${filtre.bitis}.xlsx`
+        : 'tarife-bildirim.xlsx';
+      link.download = dosyaAdi;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      addToast(`${detaylar.length} kayıt Excel dosyasına aktarıldı`, 'success');
+    } catch (error) {
+      addToast(error.message, 'error');
+    } finally {
+      setExcelBusy(false);
+    }
   };
 
   return (
@@ -292,9 +338,10 @@ export default function BelgeArama() {
                     className="btn btn-secondary table-button"
                     type="button"
                     onClick={handleExcelAktar}
-                    disabled={secili.size === 0}
+                    disabled={secili.size === 0 || excelBusy}
                   >
-                    <span className="material-icons-outlined">grid_on</span> Excel&apos;e Aktar
+                    {excelBusy ? <span className="spinner" /> : <span className="material-icons-outlined">grid_on</span>}
+                    Excel&apos;e Aktar
                   </button>
                 </div>
               </div>

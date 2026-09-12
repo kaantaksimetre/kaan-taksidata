@@ -390,3 +390,38 @@ button:disabled,.btn:disabled,.plaka-search-btn:disabled{opacity:.58;cursor:not-
   .page-actions-row,.section-title-row{flex-direction:column;align-items:stretch}
   .status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* ═══════ BELGE ARAMA — SEKMELER & FİLTRE ═══════ */
+.tab-row{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.tab-btn{
+  display:flex;align-items:center;gap:8px;padding:12px 22px;border:none;
+  border-radius:var(--radius-sm);background:var(--card);color:var(--text-muted);
+  font-size:14px;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);
+  transition:all .25s var(--ease);
+}
+.tab-btn:hover{color:var(--navy)}
+.tab-btn.active{background:var(--navy);color:#fff;box-shadow:var(--shadow-md)}
+.tab-btn .material-icons-outlined{font-size:18px}
+
+.filter-container{max-width:1100px;margin:0 auto}
+.filter-card{margin-bottom:24px}
+.filter-checkbox-row{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:8px}
+.checkbox-label{
+  display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;
+  color:var(--text);cursor:pointer;padding:6px 0;
+}
+.checkbox-label input[type="checkbox"]{
+  width:18px;height:18px;accent-color:var(--orange);cursor:pointer;flex:0 0 auto;
+}
+.son-islem-checkbox{margin-top:16px}
+.filter-btn-row{justify-content:flex-start}
+.filter-result-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.result-table thead input[type="checkbox"],
+.result-table tbody input[type="checkbox"]{
+  width:18px;height:18px;accent-color:var(--orange);cursor:pointer;
+}
+
+@media(max-width:768px){
+  .tab-row{flex-direction:column}
+  .tab-btn{justify-content:center}
+}

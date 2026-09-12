@@ -24,6 +24,14 @@ var (
 	requestIDRegex = regexp.MustCompile(`^[A-Za-z0-9_-]{16,100}$`)
 )
 
+// islemSelectColumns, scanIslem'in beklediği sütun sırasıyla birebir eşleşir.
+// Hem doğrudan sorgularda hem de filtrele sorgusundaki CTE içinde kullanılır.
+const islemSelectColumns = `id, plaka, islem_turu, acilis_ucreti, zaman_tarifesi, mesafe_tarifesi,
+	birim_zaman, birim_mesafe, belge_no, yapilan_islem, islem_tarihi, created_at,
+	COALESCE(snapshot_json,'') AS snapshot_json, COALESCE(created_by,'') AS created_by,
+	COALESCE(client_timezone,'') AS client_timezone, COALESCE(workstation_name,'') AS workstation_name,
+	COALESCE(request_id,'') AS request_id`
+
 type musteriUpsertRequest struct {
 	Plaka              string  `json:"plaka"`
 	AdSoyad            *string `json:"ad_soyad"`
@@ -357,6 +365,96 @@ func getIslemGecmisi(c *fiber.Ctx) error {
 	}
 	if err := rows.Err(); err != nil {
 		return internalError(c, "İşlem geçmişi tamamlanamadı", err)
+	}
+	return c.JSON(islemler)
+}
+
+// filterIslemler; başlangıç/bitiş tarihi ve işlem türüne göre TÜM plakalar
+// üzerinde arama yapar. sonIslem=true ise her plaka için aralıktaki en güncel
+// işlem döndürülür (aynı plakada birden fazla işlem varsa tekilleştirir).
+func filterIslemler(c *fiber.Ctx) error {
+	baslangicStr := strings.TrimSpace(c.Query("baslangic"))
+	bitisStr := strings.TrimSpace(c.Query("bitis"))
+	if baslangicStr == "" || bitisStr == "" {
+		return badRequest(c, "Başlangıç ve bitiş tarihi zorunludur")
+	}
+	baslangic, err := time.ParseInLocation("2006-01-02", baslangicStr, time.Local)
+	if err != nil {
+		return badRequest(c, "Başlangıç tarihi geçersiz")
+	}
+	bitis, err := time.ParseInLocation("2006-01-02", bitisStr, time.Local)
+	if err != nil {
+		return badRequest(c, "Bitiş tarihi geçersiz")
+	}
+	if bitis.Before(baslangic) {
+		return badRequest(c, "Bitiş tarihi başlangıçtan önce olamaz")
+	}
+
+	tipler := []string{"tamir_ayar", "tarife_yukleme"}
+	if tipParam := strings.TrimSpace(c.Query("tip")); tipParam != "" {
+		tipler = nil
+		for _, t := range strings.Split(tipParam, ",") {
+			t = strings.TrimSpace(t)
+			if t == "" {
+				continue
+			}
+			if t != "tamir_ayar" && t != "tarife_yukleme" {
+				return badRequest(c, "Geçersiz işlem türü: "+t)
+			}
+			tipler = append(tipler, t)
+		}
+		if len(tipler) == 0 {
+			return badRequest(c, "En az bir işlem türü seçilmelidir")
+		}
+	}
+
+	sonIslem := c.Query("son_islem") == "true" || c.Query("son_islem") == "1"
+
+	args := make([]any, 0, len(tipler)+2)
+	args = append(args, baslangic.Format("2006-01-02")+" 00:00:00", bitis.Format("2006-01-02")+" 23:59:59")
+	placeholders := make([]string, len(tipler))
+	for i, t := range tipler {
+		placeholders[i] = "?"
+		args = append(args, t)
+	}
+	inClause := "(" + strings.Join(placeholders, ",") + ")"
+
+	rnFilter := ""
+	if sonIslem {
+		rnFilter = "WHERE rn = 1"
+	}
+
+	query := fmt.Sprintf(`
+		WITH filtered AS (
+			SELECT %s,
+				ROW_NUMBER() OVER (PARTITION BY plaka ORDER BY islem_tarihi DESC, id DESC) AS rn
+			FROM islemler
+			WHERE islem_tarihi >= ? AND islem_tarihi <= ? AND islem_turu IN %s
+		)
+		SELECT id, plaka, islem_turu, acilis_ucreti, zaman_tarifesi, mesafe_tarifesi,
+			birim_zaman, birim_mesafe, belge_no, yapilan_islem, islem_tarihi, created_at,
+			snapshot_json, created_by, client_timezone, workstation_name, request_id
+		FROM filtered
+		%s
+		ORDER BY islem_tarihi DESC, id DESC
+		LIMIT 2000`, islemSelectColumns, inClause, rnFilter)
+
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return internalError(c, "İşlemler filtrelenemedi", err)
+	}
+	defer rows.Close()
+
+	islemler := make([]Islem, 0)
+	for rows.Next() {
+		var i Islem
+		if err := scanIslem(rows, &i); err != nil {
+			return internalError(c, "Filtre sonuçları çözülemedi", err)
+		}
+		islemler = append(islemler, i)
+	}
+	if err := rows.Err(); err != nil {
+		return internalError(c, "Filtre sonuçları tamamlanamadı", err)
 	}
 	return c.JSON(islemler)
 }

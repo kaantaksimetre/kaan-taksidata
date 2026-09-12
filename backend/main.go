@@ -84,6 +84,7 @@ func main() {
 	protected.Post("/musteri", upsertMusteri)
 	protected.Post("/islem", createIslem)
 	protected.Get("/islem/belge/:belgeNo", getBelge)
+	protected.Get("/islem/filtrele", filterIslemler)
 	protected.Get("/islem/:plaka", getIslemGecmisi)
 	protected.Get("/tarifeler", getTarifeler)
 	protected.Post("/tarifeler", upsertTarife)
